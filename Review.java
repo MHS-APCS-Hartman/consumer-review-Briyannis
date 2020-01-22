@@ -168,25 +168,25 @@ public class Review {
   
   public static double totalSentiment(String fileName)
   {
-	  String word = “”;
+	  String word = "";
 	  double sentiment = 0.0;
 	  String review = textToString(fileName);
 	  for (int i = 0; i < review.length(); i++)
 	  {
 		  String letter = review.substring(i, i+1);
-		  if (!(letter.equals(“ “)))
+		  if (!(letter.equals(" ")))
 		  {
 			  word = word + letter;
 		  }
 		  else
 		  {
 			  removePunctuation(word);
-			  sentiment = sentiment + sentiment(word);
-			  word = “ “;
+           sentiment = sentiment + sentimentVal(word);
+			  word = " ";
 		  }
 	  }
 	  return sentiment;
-  } 
+   } 
   public static int starRating (String fileName)
    {
    	double sent = totalSentiment(fileName);
@@ -195,15 +195,15 @@ public class Review {
    	{
    		rating = 1;
    	}
-   	else if(sentiment<0)
+   	else if(sent < 0)
    	{
    		rating = 2;
    	}
-   	else if(sentiment<3)
+   	else if(sent<3)
    	{
    		rating = 3;
    	}
-   	else if(sentiment<6)
+   	else if(sent<6)
    	{
    		rating = 4;
    	}
@@ -243,4 +243,41 @@ public class Review {
      }
      return fake;
    }
-}
+   public static String fakeReviewStronger(String fileName)
+ {
+   String review = textToString(fileName);
+   String word = "";
+   String sentence = "";
+
+   for (int i = 0; i < review.length(); i++) {
+     word += review.substring(i, i + 1);
+     if ((review.substring(i, i + 1).equals(" ")) || (i == review.length() - 1)) {
+       if (word.endsWith(" ")) word = word.substring(0, word.length()-1);
+       if (word.startsWith("*"))
+       {
+          double s  = sentimentVal(word);
+          String newAdj = "";
+          if (s < 0)
+          {
+              while ( (newAdj.equals("")) || (sentimentVal(newAdj) >= s) )
+                 newAdj = randomNegativeAdj();
+          }
+          else if (s > 0)
+          {
+              while ( (newAdj.equals("")) || (sentimentVal(newAdj) <= s) )
+                 newAdj = randomPositiveAdj();
+          }
+          else  // keep neutral adjectives neutral, just remove the *
+          {
+              newAdj = word.substring(1);
+          }
+          sentence += newAdj + getPunctuation(word) + " ";
+       } else {
+          sentence += word + " ";
+       }
+       word = "";
+     }
+   }
+   return sentence;
+   }
+  }
